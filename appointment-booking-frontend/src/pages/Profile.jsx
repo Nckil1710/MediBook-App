@@ -9,8 +9,9 @@ export default function Profile() {
     <Layout>
       <DashboardHeader />
       <div className="p-4 sm:p-6 lg:p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Profile</h1>
-        <div className="bg-white rounded-xl border border-gray-200 p-6 max-w-md">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">Profile</h1>
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 rounded-full bg-teal-500 flex items-center justify-center font-bold text-white text-2xl">
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}
@@ -35,6 +36,7 @@ export default function Profile() {
               <dd className="font-medium text-gray-900">{user?.role === 'ADMIN' ? 'Admin' : 'Patient'}</dd>
             </div>
           </dl>
+          </div>
         </div>
       </div>
     </Layout>

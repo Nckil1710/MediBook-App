@@ -30,8 +30,8 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
         <div className="text-center mb-8">
-          <span className="text-4xl">❤️</span>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">MediBook Smart Appointments</h1>
+          <span className="text-4xl">🏥</span>
+          <h1 className="text-2xl font-bold text-gray-900 mt-2">MediBook Appointment</h1>
           <p className="text-gray-500 mt-1">Sign in to your account</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -44,7 +44,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-teal-500 focus:border-teal-500"
-              placeholder="you@example.com"
+              placeholder="Enter your email"
             />
           </label>
           <label className="block">
@@ -55,7 +55,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-teal-500 focus:border-teal-500"
-              placeholder="••••••••"
+              placeholder="Enter your password"
             />
           </label>
           <button

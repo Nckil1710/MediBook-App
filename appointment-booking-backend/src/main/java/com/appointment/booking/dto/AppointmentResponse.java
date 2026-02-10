@@ -25,7 +25,6 @@ public class AppointmentResponse {
     private LocalDate slotDate;
     private LocalTime startTime;
     private LocalTime endTime;
-    private String notes;
     private String status;
     private Instant createdAt;
 }

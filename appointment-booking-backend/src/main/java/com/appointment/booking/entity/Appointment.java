@@ -26,8 +26,6 @@ public class Appointment {
     @JoinColumn(name = "slot_id", nullable = false)
     private Slot slot;
 
-    private String notes;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
@@ -50,6 +48,6 @@ public class Appointment {
     }
 
     public enum AppointmentStatus {
-        PENDING, APPROVED, REJECTED, CANCELLED, COMPLETED
+        PENDING, APPROVED, REJECTED, COMPLETED
     }
 }

@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +27,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final SlotRepository slotRepository;
     private final UserRepository userRepository;
-    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -39,14 +40,21 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (alreadyBooked) {
             throw new BadRequestException("This slot is no longer available");
         }
+
+        if (!slot.isAvailable()) {
+            throw new BadRequestException("This slot is no longer available");
+        }
+
         Appointment appointment = Appointment.builder()
                 .user(user)
                 .slot(slot)
-                .notes(request.getNotes())
                 .status(AppointmentStatus.PENDING)
                 .build();
         appointment = appointmentRepository.save(appointment);
-        notificationService.scheduleReminders(appointment);
+
+        slot.setAvailable(false);
+        slotRepository.save(slot);
+
         return toResponse(appointment);
     }
 
@@ -64,11 +72,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!appointment.getUser().getId().equals(userId)) {
             throw new BadRequestException("Not authorized to cancel this appointment");
         }
-        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
-            throw new BadRequestException("Appointment is already cancelled");
+        if (appointment.getStatus() == AppointmentStatus.REJECTED) {
+            throw new BadRequestException("Appointment is already rejected");
         }
-        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointment.setStatus(AppointmentStatus.REJECTED);
         appointmentRepository.save(appointment);
+
+        Slot slot = appointment.getSlot();
+        slot.setAvailable(true);
+        slotRepository.save(slot);
     }
 
     @Override
@@ -79,9 +91,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!appointment.getUser().getId().equals(userId)) {
             throw new BadRequestException("Not authorized to reschedule this appointment");
         }
-        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
-            throw new BadRequestException("Cannot reschedule a cancelled appointment");
+        if (appointment.getStatus() == AppointmentStatus.REJECTED || appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new BadRequestException("Cannot reschedule a rejected or completed appointment");
         }
+
+        Slot oldSlot = appointment.getSlot();
+
         Slot newSlot = slotRepository.findById(request.getNewSlotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Slot not found with id: " + request.getNewSlotId()));
         boolean alreadyBooked = appointmentRepository.existsBySlotIdAndStatusIn(
@@ -89,15 +104,26 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (alreadyBooked) {
             throw new BadRequestException("The selected slot is no longer available");
         }
+
+        if (!newSlot.isAvailable()) {
+            throw new BadRequestException("The selected slot is no longer available");
+        }
+
         appointment.setSlot(newSlot);
-        if (request.getNotes() != null) appointment.setNotes(request.getNotes());
         appointment.setStatus(AppointmentStatus.PENDING);
         appointment = appointmentRepository.save(appointment);
-        notificationService.scheduleReminders(appointment);
+
+        oldSlot.setAvailable(true);
+        slotRepository.save(oldSlot);
+
+        newSlot.setAvailable(false);
+        slotRepository.save(newSlot);
+
         return toResponse(appointment);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AppointmentResponse> getAllAppointmentsForAdmin() {
         return appointmentRepository.findAllByOrderByCreatedAtDesc()
                 .stream().map(this::toResponse).collect(Collectors.toList());
@@ -117,12 +143,33 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new BadRequestException("Status must be APPROVED or REJECTED");
         }
         appointment = appointmentRepository.save(appointment);
+
+        if (appointment.getStatus() == AppointmentStatus.REJECTED) {
+            Slot slot = appointment.getSlot();
+            slot.setAvailable(true);
+            slotRepository.save(slot);
+        }
+
         return toResponse(appointment);
     }
 
     private AppointmentResponse toResponse(Appointment a) {
         Slot slot = a.getSlot();
         User user = a.getUser();
+
+        // Auto-complete: if appointment date+time has passed and status is PENDING or APPROVED
+        String status = a.getStatus().name();
+        if (a.getStatus() == AppointmentStatus.PENDING || a.getStatus() == AppointmentStatus.APPROVED) {
+            LocalDate today = LocalDate.now();
+            LocalTime now = LocalTime.now();
+            if (slot.getSlotDate().isBefore(today) ||
+                    (slot.getSlotDate().isEqual(today) && slot.getEndTime().isBefore(now))) {
+                a.setStatus(AppointmentStatus.COMPLETED);
+                appointmentRepository.save(a);
+                status = "COMPLETED";
+            }
+        }
+
         return AppointmentResponse.builder()
                 .id(a.getId())
                 .userId(user.getId())
@@ -136,8 +183,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .slotDate(slot.getSlotDate())
                 .startTime(slot.getStartTime())
                 .endTime(slot.getEndTime())
-                .notes(a.getNotes())
-                .status(a.getStatus().name())
+                .status(status)
                 .createdAt(a.getCreatedAt())
                 .build();
     }

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: '📊' },
+  { path: '/about', label: 'About Us', icon: 'ℹ️' },
   { path: '/book', label: 'Book Appointment', icon: '📅' },
   { path: '/my-appointments', label: 'My Appointments', icon: '📋' },
   { path: '/profile', label: 'Profile', icon: '👤' },
@@ -15,13 +16,6 @@ export default function Layout({ children }) {
   const { user, isAdmin } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
-    setSidebarOpen(mq.matches);
-    const handler = () => setSidebarOpen(mq.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
 
   const handleSignOut = () => {
     localStorage.removeItem('token');
@@ -52,8 +46,8 @@ export default function Layout({ children }) {
         <div className="w-[280px] max-w-[85vw] lg:w-64 flex flex-col h-full min-h-screen shrink-0">
           <div className="p-4 sm:p-6 border-b border-slate-700">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xl sm:text-2xl shrink-0">❤️</span>
-              <span className="font-semibold text-sm sm:text-lg truncate">MediBook Smart Appointments</span>
+              <span className="text-xl sm:text-2xl shrink-0">🏥</span>
+              <span className="font-semibold text-sm sm:text-lg truncate">MediBook Appointment</span>
             </div>
           </div>
           <nav className="flex-1 p-4 space-y-1">
@@ -135,7 +129,33 @@ export default function Layout({ children }) {
           </button>
         </div>
         <div className="flex-1 overflow-auto">
-          {children}
+          <div className="min-h-full flex flex-col">
+            <div className="flex-1">
+              {children}
+            </div>
+            <div className="border-t border-gray-200 bg-white">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+                <h3 className="text-sm font-semibold text-gray-900">Contact Us</h3>
+                <p className="mt-1 text-sm text-gray-600">
+                  Need help with bookings or your account? Reach out and we’ll get back to you.
+                </p>
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                  <div className="rounded-lg bg-gray-50 border border-gray-200 p-3">
+                    <p className="text-gray-500">Email</p>
+                    <p className="font-medium text-gray-900">support@medibook.com</p>
+                  </div>
+                  <div className="rounded-lg bg-gray-50 border border-gray-200 p-3">
+                    <p className="text-gray-500">Phone</p>
+                    <p className="font-medium text-gray-900">+91 98765 43210</p>
+                  </div>
+                  <div className="rounded-lg bg-gray-50 border border-gray-200 p-3">
+                    <p className="text-gray-500">Hours</p>
+                    <p className="font-medium text-gray-900">Mon–Sat, 9:00 AM – 6:00 PM</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>
