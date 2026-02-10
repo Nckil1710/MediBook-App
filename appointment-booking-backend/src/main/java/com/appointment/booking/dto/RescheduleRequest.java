@@ -11,5 +11,4 @@ import lombok.*;
 public class RescheduleRequest {
     @NotNull(message = "New slot ID is required")
     private Long newSlotId;
-    private String notes;
 }

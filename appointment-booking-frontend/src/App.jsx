@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import BookAppointment from './pages/BookAppointment';
 import MyAppointments from './pages/MyAppointments';
 import Profile from './pages/Profile';
+import AboutUs from './pages/AboutUs';
 import AdminSlots from './pages/AdminSlots';
 import AdminAppointments from './pages/AdminAppointments';
 import Logout from './pages/Logout';
@@ -40,6 +41,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/about"
+        element={
+          <ProtectedRoute>
+            <AboutUs />
           </ProtectedRoute>
         }
       />

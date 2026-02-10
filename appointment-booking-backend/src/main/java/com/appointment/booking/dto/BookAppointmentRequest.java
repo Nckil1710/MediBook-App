@@ -11,5 +11,4 @@ import lombok.*;
 public class BookAppointmentRequest {
     @NotNull(message = "Slot ID is required")
     private Long slotId;
-    private String notes;
 }

@@ -37,28 +37,32 @@ public class DataInitializer implements CommandLineRunner {
         }
         if (appointmentServiceRepository.count() == 0) {
             appointmentServiceRepository.saveAll(List.of(
-                    AppointmentService.builder().name("General Consultation").description("General health check-up").build(),
-                    AppointmentService.builder().name("Dental").description("Dental examination and cleaning").build(),
-                    AppointmentService.builder().name("Physiotherapy").description("Physical therapy session").build()
+                    AppointmentService.builder().name("General").description("General health check-up").build(),
+                    AppointmentService.builder().name("ENT").description("Ear, Nose and Throat consultation").build(),
+                    AppointmentService.builder().name("Cardiology").description("Heart and cardiovascular care").build(),
+                    AppointmentService.builder().name("Dermatology").description("Skin, hair and nail care").build(),
+                    AppointmentService.builder().name("Orthopedics").description("Bones, joints and spine care").build()
             ));
         }
         if (doctorRepository.count() == 0) {
             List<AppointmentService> services = appointmentServiceRepository.findAll();
-            if (services.size() >= 3) {
-                AppointmentService general = services.get(0);   // General Consultation
-                AppointmentService dental = services.get(1);    // Dental
-                AppointmentService physio = services.get(2);     // Physiotherapy
-                // Each service has 2 doctors. Weekdays: 4-6 slots per doctor; Weekends: 2-3 per doctor (varying).
+            if (services.size() >= 5) {
+                AppointmentService general = services.get(0);
+                AppointmentService ent = services.get(1);
+                AppointmentService cardio = services.get(2);
+                AppointmentService derm = services.get(3);
+                AppointmentService ortho = services.get(4);
                 doctorRepository.saveAll(List.of(
-                        // General Consultation – 2 doctors
-                        Doctor.builder().name("Dr. Sarah Smith").title("MD").service(general).weekdaySlotCount(5).weekendSlotCount(3).build(),
-                        Doctor.builder().name("Dr. James Wilson").title("MD").service(general).weekdaySlotCount(6).weekendSlotCount(2).build(),
-                        // Dental – 2 doctors
-                        Doctor.builder().name("Dr. Teresa Chevez").title("MD").service(dental).weekdaySlotCount(5).weekendSlotCount(2).build(),
-                        Doctor.builder().name("Dr. Emily Brown").title("DDS").service(dental).weekdaySlotCount(4).weekendSlotCount(3).build(),
-                        // Physiotherapy – 2 doctors
-                        Doctor.builder().name("Dr. Michael Lee").title("PT").service(physio).weekdaySlotCount(6).weekendSlotCount(2).build(),
-                        Doctor.builder().name("Dr. Anna Martinez").title("PT").service(physio).weekdaySlotCount(4).weekendSlotCount(3).build()
+                        Doctor.builder().name("Dr. Aarav Sharma").title("MD").service(general).weekdaySlotCount(5).weekendSlotCount(3).build(),
+                        Doctor.builder().name("Dr. Priya Iyer").title("MD").service(general).weekdaySlotCount(6).weekendSlotCount(2).build(),
+                        Doctor.builder().name("Dr. Rohan Mehta").title("MS (ENT)").service(ent).weekdaySlotCount(5).weekendSlotCount(2).build(),
+                        Doctor.builder().name("Dr. Ananya Nair").title("MS (ENT)").service(ent).weekdaySlotCount(4).weekendSlotCount(3).build(),
+                        Doctor.builder().name("Dr. Vivek Reddy").title("DM (Cardio)").service(cardio).weekdaySlotCount(6).weekendSlotCount(2).build(),
+                        Doctor.builder().name("Dr. Sneha Kulkarni").title("DM (Cardio)").service(cardio).weekdaySlotCount(5).weekendSlotCount(3).build(),
+                        Doctor.builder().name("Dr. Karthik Menon").title("MD (Derm)").service(derm).weekdaySlotCount(5).weekendSlotCount(2).build(),
+                        Doctor.builder().name("Dr. Meera Joshi").title("MD (Derm)").service(derm).weekdaySlotCount(4).weekendSlotCount(3).build(),
+                        Doctor.builder().name("Dr. Arjun Singh").title("MS (Ortho)").service(ortho).weekdaySlotCount(6).weekendSlotCount(2).build(),
+                        Doctor.builder().name("Dr. Kavya Rao").title("MS (Ortho)").service(ortho).weekdaySlotCount(5).weekendSlotCount(3).build()
                 ));
             }
         }
